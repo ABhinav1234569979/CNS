@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crypto Tools</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .box {
+      border: 2px solid black;
+      padding: 20px;
+      width: 320px;
+      text-align: center;
+    }
+
+    input {
+      width: 90%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin: 5px;
+    }
+
+    .result {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Caesar Cipher -->
+<div class="box">
+  <h2>Caesar Cipher</h2>
+
+  <input type="text" id="cText" placeholder="Enter text">
+  <input type="number" id="shift" placeholder="Shift value">
+
+  <button onclick="caesarEncrypt()">Encrypt</button>
+  <button onclick="caesarDecrypt()">Decrypt</button>
+
+  <p class="result" id="cResult"></p>
+</div>
+
+<!-- Diffie-Hellman -->
+<div class="box">
+  <h2>Diffie-Hellman</h2>
+
+  <input type="number" id="q" placeholder="Prime (q)">
+  <input type="number" id="alpha" placeholder="Base (α)">
+  <input type="number" id="xa" placeholder="Xa">
+  <input type="number" id="xb" placeholder="Xb">
+
+  <button onclick="generateDH()">Generate</button>
+
+  <div class="result" id="dhResult"></div>
+</div>
+
+<!-- Rail Fence -->
+<div class="box">
+  <h2>Rail Fence Cipher</h2>
+
+  <input type="text" id="rfText" placeholder="Enter text">
+  <input type="number" id="rails" placeholder="Rails">
+
+  <button onclick="rfEncrypt()">Encrypt</button>
+  <button onclick="rfDecrypt()">Decrypt</button>
+
+  <p class="result" id="rfResult"></p>
+</div>
+
+<script>
+
+// Caesar Cipher
+function caesarEncrypt() {
+  let text = document.getElementById("cText").value;
+  let shift = parseInt(document.getElementById("shift").value);
+  let result = "";
+
+  for (let i = 0; i < text.length; i++) {
+    let char = text[i];
+    if (char.match(/[a-z]/i)) {
+      let code = text.charCodeAt(i);
+      let base = code >= 65 && code <= 90 ? 65 : 97;
+      char = String.fromCharCode(((code - base + shift) % 26) + base);
+    }
+    result += char;
+  }
+
+  document.getElementById("cResult").innerText = result;
+}
+
+function caesarDecrypt() {
+  let shift = parseInt(document.getElementById("shift").value);
+  document.getElementById("shift").value = 26 - shift;
+  caesarEncrypt();
+}
+
+// Diffie-Hellman
+function power(base, exp, mod) {
+  let result = 1;
+  base = base % mod;
+  while (exp > 0) {
+    if (exp % 2 == 1)
+      result = (result * base) % mod;
+    exp = Math.floor(exp / 2);
+    base = (base * base) % mod;
+  }
+  return result;
+}
+
+function generateDH() {
+  let q = parseInt(document.getElementById("q").value);
+  let alpha = parseInt(document.getElementById("alpha").value);
+  let xa = parseInt(document.getElementById("xa").value);
+  let xb = parseInt(document.getElementById("xb").value);
+
+  let ya = power(alpha, xa, q);
+  let yb = power(alpha, xb, q);
+
+  let ka = power(yb, xa, q);
+  let kb = power(ya, xb, q);
+
+  document.getElementById("dhResult").innerHTML =
+    "Ya: " + ya + "<br>" +
+    "Yb: " + yb + "<br>" +
+    "Ka: " + ka + "<br>" +
+    "Kb: " + kb;
+}
+
+// Rail Fence Encrypt
+function rfEncrypt() {
+  let text = document.getElementById("rfText").value;
+  let rails = parseInt(document.getElementById("rails").value);
+
+  let rail = Array.from({ length: rails }, () => []);
+  let dirDown = false;
+  let row = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    rail[row].push(text[i]);
+    if (row == 0 || row == rails - 1) dirDown = !dirDown;
+    row += dirDown ? 1 : -1;
+  }
+
+  let result = rail.flat().join("");
+  document.getElementById("rfResult").innerText = result;
+}
+
+// Rail Fence Decrypt
+function rfDecrypt() {
+  document.getElementById("rfResult").innerText = "Decrypt logic complex (optional)";
+}
+
+</script>
+
+</body>
+</html>
